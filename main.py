@@ -2,69 +2,16 @@ import scipy.io
 import numpy as np
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
+import math
+from sklearn.neural_network import BernoulliRBM
 
 data = scipy.io.loadmat("realitymining.mat")['s']
-
 affilation = data['my_affil']
 data_mat = data['data_mat']
-
-'''
-### Classifier explanation ###
-### 2 categories: sloan or no_sloan ###
-### sloan = 1; no_sloan = 0 ###
-'''
-affilation_list = []
-matdata_list = []
-for i in range(len(affilation[0])):
-    if len(affilation[0][i]) > 0 and len(data_mat[0][i]) > 0:
-        affilation_list += [affilation[0][i][0][0]]
-        matdata_list += [data_mat[0][i].tolist()]
-        if affilation_list[len(affilation_list)-1] == 'sloan' or affilation_list[len(affilation_list)-1] == 'sloan_2':
-            affilation_list[len(affilation_list)-1] = [1]
-        else:
-            affilation_list[len(affilation_list)-1] = [0]
-
-# 1 – home, 2 – work, 3 – elsewhere, 0 – no signal, NaN – phone is off
-home, work, elsewhere, no_signal, phone_off = 0, 0, 0, 0, 0
-work = 0
-elsewhere = 0
-no_signal = 0
-phone_off = 0
-frequency = []
-all_frequency = []
-for subject in range(len(matdata_list)):
-    for hours in range(24):
-        for elements in range(len(matdata_list[subject][hours])):
-            if matdata_list[subject][hours][elements] == 1:
-                home += 1
-            elif matdata_list[subject][hours][elements] == 2:
-                work += 1
-            elif matdata_list[subject][hours][elements] == 3:
-                elsewhere += 1
-            elif matdata_list[subject][hours][elements] == 0:
-                no_signal += 1
-            else:
-                phone_off += 1
-        frequency += [home/len(matdata_list[subject][hours]) if home !=0 else 0, 
-                     work/len(matdata_list[subject][hours]) if  work !=0 else 0, 
-                     elsewhere/len(matdata_list[subject][hours]) if elsewhere !=0 else 0, 
-#                      no_signal/len(matdata_list[subject][hours]) if no_signal !=0 else 0,
-                     phone_off/len(matdata_list[subject][hours]) if phone_off !=0 else 0]
-        home, work, elsewhere, no_signal, phone_off = 0, 0, 0, 0, 0
-    all_frequency += [frequency]
-    frequency = []
-features = np.array(all_frequency)
-labels = np.array(affilation_list)
-
-# Parameters that define the MLP
-n_inputs = len(X_train[0])
-n_hidden1 = 300
-n_hidden2 = 100
-n_outputs = 2
-X = tf.placeholder(tf.float32, shape= (None, n_inputs), name="X")
-y = tf.placeholder(tf.int64, shape=(None), name="y")
-
-X_train, X_test, y_train, y_test = train_test_split(features, labels.ravel(), test_size=0.5, random_state=0)
+sloan_list = []
+features_list = []
+observation_days = 7
+count = 0
 
 def neuron_layer(X, n_neurons, name, activation=None):
     with tf.name_scope(name):
@@ -98,6 +45,59 @@ def neuron_layer(X, n_neurons, name, activation=None):
         else:
             return Z
 
+for i in range(len(affilation[0])):
+    if len(data_mat[0][i]) > 0:
+        if len(data_mat[0][i][0]) >= observation_days and len(affilation[0][i]) > 0:
+            features_list += [data_mat[0][i]]
+            if affilation[0][i][0][0][0] == 'sloan' or affilation[0][i][0][0][0] == 'sloan_2':
+                sloan_list += [count]
+            count += 1
+
+for subject in range(len(features_list)):
+    for hour in range(len(features_list[subject])):
+        for element in range(len(features_list[subject][hour])):
+            if math.isnan(features_list[subject][hour][element]):
+                features_list[subject][hour][element] = 4
+
+#  0 – no signal, 1 – home, 2 – work, 3 – elsewhere, 4 – phone is off
+all_places = [0, 1, 2, 3, 4]
+count = 0
+
+features = np.zeros((len(features_list), observation_days * 24 * len(all_places)))
+
+for subject in range(len(features_list)):
+    for number in range(len(all_places)):
+        for week in range(observation_days):
+            for hours in range(24):
+                if features_list[subject][hours][week] == all_places[number]:
+                    features[subject][count] = 1
+                count += 1
+    count = 0
+
+rbm_list = []  
+sk_rbm = BernoulliRBM(n_components=10, verbose=True, learning_rate=0.1, n_iter=50)
+sk_rbm.fit(features)
+rbm_list = sk_rbm.transform(features)
+
+labels = []
+
+for i in range(len(features)):
+    if i in sloan_list:
+        labels += [1]
+    else:
+        labels += [0]
+        
+labels = np.array(labels)
+
+X_train, X_test, y_train, y_test = train_test_split(rbm_list, labels.ravel(), test_size=0.5, random_state=0)
+# Parameters that define the MLP
+n_inputs = len(X_train[0])
+n_hidden1 = 300
+n_hidden2 = 100
+n_outputs = 2
+X = tf.placeholder(tf.float32, shape= (None, n_inputs), name="X")
+y = tf.placeholder(tf.int64, shape=(None), name="y")
+
 # The scope name for this MLP is "dnn"
 with tf.name_scope("dnn"):
     
@@ -114,8 +114,7 @@ with tf.name_scope("dnn"):
     # The output layer does not use any activation function
     # it will output n_outputs=10 values since there are 10 classes in MNIST
     logits = neuron_layer(hidden2, n_outputs, name="outputs")
-
-    # scope name of the loss function is "loss"
+# scope name of the loss function is "loss"
 with tf.name_scope("loss"):
     
     # The Loss function is defined. It outputs a loss value for each x
@@ -131,7 +130,6 @@ with tf.name_scope("train"):
     # The plain GradientDescentOptimizer is chosen
     optimizer = tf.train.GradientDescentOptimizer(learning_rate)
     training_op = optimizer.minimize(loss)
-
 with tf.name_scope("eval"):
     # A prediction is correct if it is among the k=1 most probable
     # classes predicted by the NN. Since k=1, it is only correct
@@ -169,5 +167,3 @@ with tf.Session() as sess:
         acc_val = accuracy.eval(feed_dict={X: X_test,
                                             y: y_test})
         print(epoch, "Train accuracy:", acc_train, "Val accuracy:", acc_val)
-
-    save_path = saver.save(sess, "./my_model_final.ckpt")
