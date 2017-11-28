@@ -1,0 +1,292 @@
+\documentclass[paper=letter, fontsize=12pt]{article}
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{lipsum} % Package to generate dummy text throughout this template
+\usepackage{blindtext}
+\usepackage{graphicx} 
+\usepackage{caption}
+\usepackage{bm}
+\usepackage {amsmath} 
+\usepackage{subcaption}
+\usepackage[sc]{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\linespread{1.05} % Line spacing - Palatino needs more space between lines
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+\usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry} % Document margins
+\usepackage{multicol} % Used for the two-column layout of the document
+%\usepackage[hang, small,labelfont=bf,up,textfont=it,up]{caption} % Custom captions under/above floats in tables or figures
+\usepackage{booktabs} % Horizontal rules in tables
+\usepackage{listings}
+\usepackage{float} % Required for tables and figures in the multi-column environment - they need to be placed in specific locations with the [H] (e.g. \begin{table}[H])
+\usepackage{hyperref} % For hyperlinks in the PDF
+\usepackage{lettrine} % The lettrine is the first enlarged letter at the beginning of the text
+\usepackage{paralist} % Used for the compactitem environment which makes bullet points with less space between them
+\usepackage{abstract} % Allows abstract customization
+\usepackage{color}
+\usepackage{titlesec}
+% Use endnote for showing the references at the end
+\usepackage{endnotes}
+
+\setcounter{secnumdepth}{4}
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\title{Neural network approaches to Reality Mining: The
+Reality Mining dataset}
+
+
+\author{Alessandro Pomes and Domantas Meidus}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+
+\begin{abstract}
+ The main goal of this project is to find some correlations between the habits of some students and the type of studies thier belong.
+Our ideas is that we could reconize the adress of studies(or a type job for a worker) considering in which place the subjets are used to pass their time during a day. More precisely how many time a student can pass at work,at home and elsewhere .\newline 
+For this type of consideration team has taken the Reality Mining dataset. Below we'll provide a short description how the dataset is composed. The type of classification taken was divided in two ways: one performed with a Multilayer Perceptron Neural Network and one using first Restricted Boltzmann Machines and then again with the same previous Multiltilayer Perceptron.
+Our thesis is that if a generative learning algorithm is used to reconized  pattern among data before the classification, then a better result in term of accuracy could be reach up.
+\end{abstract}
+\tableofcontents
+\section{Description of the problem}
+ \subsection{Dataset description}
+ Reality Mining\endnote{Nathan Eagle, Alex Pentland, and David Lazer. Inferring Social Network Structure using Mobile
+Phone Data, Proceedings of the National Academy of Sciences (PNAS), 2009, Vol 106 (36), pp.
+15274-15278\label{1}} was an experiment conduced from 2004-2005 at MIT Media Laboratory. It consisted to detect the the follow information of 94 subjects:
+\begin{itemize}
+\item Bluetooth devices (proximity of
+approximately five meters)
+\item call logs
+  \item cell tower ID
+ \item application usage
+ \item phone status
+ \item self-report relational data
+ \end{itemize}
+These data were detect with the help of particular type of cellphone (Nokia 6600) where was istalled some additional software who was able to automatically run the an application called ContextLog in backround.\newline
+This application was in charge to logs all data described above.
+Therefore for each subject with this dataset might be extract several information during his day.It might also construct how many other people is meeting in a specific time slap.
+Mining the reality of almost 100 users raises justifiable concerns over privacy.
+However, the work in this paper
+is a social science experiment, conducted with human
+subject approval and consent of the users.
+\section{Description of our approach}
+\subsection{Research}
+Many studies\endnote{Eigenbehaviors: identifying structure in routine
+Nathan Eagle \& Alex Sandy Pentland Received: 12 September 2007 / Revised: 24 February 2009 / Accepted: 24 February 2009 / Published online: 7 April 2009
+Springer-Verlag 2009\label{2}} 
+\endnote{Probabilistic Mining of Socio-Geographic Routines
+From Mobile Phone Data
+Katayoun Farrahi, Member, IEEE, and Daniel Gatica-Perez, Member, IEEE\label{3}} \endnote{Classification and prediction of whereabouts patterns from the Reality
+Mining dataset
+Laura Ferrari, Marco Mamei 
+Dipartimento di Scienze e Metodi dell’Ingegneria, University of Modena and Reggio Emilia, Italy\label{4}} were done for routine prediction structure from every days people life. 
+To reach this interesting mining from this dataset some probabilistic tool were used.
+Mainly Latent Dirichlet Allocation were used$^{\ref{3}}$ $^{\ref{4}}$. LDA is a
+powerful mechanism to extract recurrent behaviors and high-level patterns with unsupervised methodology.\newline 
+These researches devoted themselves to structuring the data with complete information on the student's specific positions(cell tower) and also to the information of how many people met during a day(with the help of bluetooth recording).
+To build the models different data structure were used, for instance paper from Ferrari, Mamei ${\ref{4}}$ used an interesting structure way where for each user are recorded several time-frames and the GSM towers where the user was connected. \newline 
+Principal problem due to handle the dataset was the amount of missing data.
+Unfortunately when team tryed to extract some features in many cases the informations given was too partial to create a robust dataset.
+So we decided, inspired latter to professor and former from paper of Nathan Eagle \& Alex Sandy Pentland${\ref{2}}$ to create Multidimentional-Array using the location during the days
+In the Section \hyperref[sec:featureextraction]{Feature Extraction} is provided the description on how we organize data.
+
+\subsubsection{Feature Extraction}
+\label{sec:featureextraction}
+As mentioned above we built two type of classification problem with the same goal: provide a way to recognized the address studies from his routine.\newline
+First case of develop was to consider each subject and for each hours in a day the frequencies that a person could have been in a specific place. So for this type of solution we gathered all days information  in a single matrix(for more information on the implementation consult \hyperref[sec:datahandling]{Data Handling} subsection).\newline
+For the second model development we decide to build a much deeper configuration of the data.
+For reasons due to the structure of RBM and to preserve information of continuous daily routine we decide to keep the structure of a week with binary values.\newline
+Inspiring from literature${\ref{2}}$ we place a single week in a long array of 840 dimension.
+This vector has 5 recurrent structure of 168 dimension that belongs on the places we have in the dataset(Home, Elsewhere, Phone is off, No signal). For each 168 sloth that corrispond a single hour we put 1 if the student were in the place, insted of 0 it he was not(implementation detail \hyperref[sec:feauturerimpl]{here}).\newline
+In term of clarify this structure the week obtained are random weeks divided from to type of student: The Sloan Business student and students belong to MIT. Therefore finaly we divided our dataset in 2 iphotetical weekly pattern routine, with the goal to detect it.
+\paragraph{Feature Selection \& Restricted Boltzmann Machines}
+On the second extension of our implementation we used a Generative learning algorithm to provide a sort of feature selection (actually this type of features mapping is not a properly a feature selection, but we are on purpose abusing this term to explain better what is our intention).\newline
+To show how a eclectic could be the formulation of Neural Network we have adopted Restricted Boltzmann Machines \endnote{Geoffrey Hinton 2010.August 2, 2010 UTML TR 2010–003,
+"A Practical Guide to Training Restricted Boltzmann Machines"
+Geoffrey Hinton
+Department of Computer Science, University of Toronto\label{5}} to achieve a better accuracy in classification problem.
+Restricted Boltzmann machine is a Unsupervised method highlight a set of latent factors.  Instead of learning directly on a continuous scale, using RBM we try to discover latent factors that can explain the "activation" in a particular hour that is when a subject is in a precise place; therefore if there is a precise structure in the domain data.
+So we were trying to collapse the information of a single week in a some much miningfull features.
+To know this we map the original week vectors in some other trained vector that perform the follow probability:
+\begin{center}
+$p(h_j = 1| v) =\sigma(b_j+ \sum_{i} v_iw_{ij})$ \footnote{ $\sigma$ represents sigmoid function ( details on \href{http://www.wikipedia.org/wiki/Sigmoid_function}{Wikipedia: Sigmoid Function} ) }
+\end{center}
+In the final structure of data we put in the RBM 100 hidden neuron unit that can perform a good result in the process of perceptron training.
+\subsection{Missing Data}
+The insight behind processing our missing data is that we handle our dataset and eliminating them directly in order that does not weigh in learning process.
+In the first classification we figure out that if the frequencies is computed deleting the Nan value we would not have changed the other relevant information because the values frequencies of the other places would not be changed.\newline
+For the second classification we did, as described previously, 5 recursive structure. Deleting the structure for the Nan value does not hesitate to information that we get from dataset.\newline
+Use these data structure allow us to brutally delete Nan values without leaving important information.
+\newline
+\newline
+\subsection{Classifiers} 
+\label{sec:Classifiers}
+As explained above two different type of classification have been develop:
+\begin{itemize}
+\item Neural Network Multilayer-Perceptron : Supervised Machine learning system made up by a network of layers of neurons and weighs(linked in the neurons) that are actualized every steps of the training session. We built three layers were the first and the last are the input and the output of our supervised (for specific detail of implementation read \hyperref[sec:classimple]{here}).
+\item RMB \& Multilayer-Perceptron : The classification method here are two and so different.
+RBM is a Generative Models so his scope is to perform a distribution probability of the input.
+Is a Unsupervised method and we don't need to put labels in the learning process.
+Multilayer-Perceptron that we used are the same of the description above.
+\end{itemize}
+In this section we are going to answer on the questions proposed for the project:
+\begin{enumerate}
+\item As we can see in this project NN can provide both Supervised and Unsupervised problem with different goal: usually supervised problem are classification problem (for example with a Multilayer Perceptron) that can provide some labels from a given input. For Unsupervised problem(like RBM) we train directly the dataset without labels. Another type of learning could be Reinforcement that could be considered a subsection of Unsupervised Learning. Infact labels are not already given but generated by an agent's interactions with the environment.
+\item Arquitecture of NN could be synthesized:
+\begin{itemize}
+\item Neurons: nodes of the network that contain input, output and computed values.
+\item Weights: are the connection between different Networks, the goals are to achieve an optimal configuration depending on the model proposed in a learning rule. 
+\item Layer : sets of neurons that belong a precise type of computation from others different layers across conectivity weights (layers could be also input and output)
+\end{itemize}
+\item Neural networks is inspired design of  a biological neural network that is a series of interconnected neurons whose activation defines a recognizable linear pathway. The interface through which neurons interact with their neighbors usually consists of several axon terminals connected via synapses to dendrites on other neurons. If the sum of the input signals into one neuron surpasses a certain threshold, the neuron sends an action potential  at the axon hillock and transmits this electrical signal along the axon (that is almost the same structure of the Percetron Neural Network use in this proyect).
+\item Information extracted could be reached with many type of activation funtions that could perform some trasormation of the output value much more useful respect raw data.
+Activation function could be:dentity function,Binary step function,Bipolar step function,Sigmoidal function, Binary sigmoidal function,Bipolar sigmoidal function,Ramp function
+\item To learn a Neural Network usually should be used gradient descent algorithm.
+Gradient descent alghoritm use back propagation method to update weight and to reduce a possibily loss function. There are many others alghorithm like Contrastive Divergence that is a particolar tpe of gradient desent algorithm used in Boltzmann machines.
+\end{enumerate}
+
+
+\subsection{Validation}
+Especially for second procedure in the process of validation we have developed a structure that need some precize steps in order to split data and keep coherence in the procedure. If it will not take this order some side-effects can be produced.\newline
+We decide to split week dataset in two parts: one for training and one for testing. We apply first the train part on the two learning procedure and the we use test set to complete the accuracy.\newline
+So the two training operation, RMB before and Multilayer-Perceptron after, can rely on two distinct datasets that remain independent and therefore do not change learning information. Some comments in the Jupyter Notebooks can highlight position were dataset is split.\newline
+For the first train model we used a simple division in the test and training set before the learning procedure.
+\section{Implementation}
+Reality mining dataset has \textasciitilde{}57 sub categories with each subject activity data. However it's unable to use all categories for Neural Network - only few categories data was chosen to train and test for learning.
+List of categories that have been chosen:
+\begin{enumerate}
+\item \textbf{my\_affil} - this category of dataset contains each subject affilation type. All possible affilation types:
+ \begin{itemize}
+ 	\item 'mlgrad' \textendash{} Media Lab Graduate Student (not a first year)
+ 	\item'1 st yeargrad' \textendash{} Media Lab First Year Graduate Student
+ 	\item'mlfrosh' \textendash{} Media Lab First Year Undergraduate Student
+ 	\item`mlstaff' \textendash{} Media Lab Staff
+ 	\item`mlurop' \textendash{} Media Lab Undergraduate
+ 	\item`professor' \textendash{} Media Lab Professor
+ 	\item sloan' \textendash{} Sloan Business School.
+ \end{itemize}
+\item \textbf{data\_mat} - Inferred each subject locations at each hour of the day:
+ \begin{itemize}
+ 	\item 1 - Home
+ 	\item 2 - Work
+ 	\item 3 - Elsewhere
+ 	\item 0 - No signal
+ 	\item NaN - Phone is off.
+ \end{itemize}
+ \end{enumerate}
+
+From data\_mat dataset patterns which indicates each subject locations at each hours of the day subjects are classified to \textbf{sloan} or \textbf{no sloan}.
+\subsection{Data Handling}
+\label{sec:datahandling}
+Dataset is stored in the .mat format, in order to extract this data to python data structures, the program uses scipy.io library.
+After all Reality Mining dataset is stored to python data structures, \textbf{my\_affilation} and \textbf{data\_mat} categories are extracted:
+\newline
+\textbf{affilation = data['my\_affil']}
+\newline
+\textbf{data\_mat = data['data\_mat']}
+\newline
+These categories are used for Neural Network training and testing.
+\newline
+\newline
+Reality mining dataset has a lot of missing data which is handled by excluding all missing data records in my\_affil and data\_mat datasets. This way of dealing with missing data prevents any error using Machine Learnings algorithm in cost of losing data. Of all missing data in my\_affil and data\_mat datasets 47 subjects was excluded. 
+\subsection{Feature Extraction and Selection}
+\label{sec:feauturerimpl}
+Two Neaural Network learning algorithms are used: \textbf{Restricted Bolzman Machine(RBM)} and \textbf{Multi-layer perceptron}.
+For \textbf{Restricted Bolzman Machine} learning algorithm \textbf{data\_mat} data will be used as features. To extract these features into required 2-nd dimensional vector, the program performs these steps:
+\begin{enumerate}
+\item Each subject activity is stored to the list if subject data\_mat data complies with requirements: 
+	\begin{itemize}
+		\item data\_mat data representing subject activity on each hours is not empty;
+    	\item data\_mat data should represent at least 7 days of subject activity.
+    \end{itemize}
+These conditions complies 69 subjects of 106 subjects. These 69 subjects data\_mat data are stored into \textbf{features\_list} for further data preprocessing.
+\item Excluding NaN values from the \textbf{features\_list}. Data\_mat dataset contains NaN values which indicates that subject phone was off at certain hour. These NaN values are converted to Integer data type, in our program NaN values converted to value 4. Our program is not design to handle non numeric data types, so in order to perform features vector with necessary data, program converts non numeric value to Integer.
+\item Creating Features vector for RBM learning algorithm. 
+Features vector is 2-nd dimensional:
+	\begin{itemize}
+ 		\item 1-st dimension data - Subject
+ 		\item 2-nd dimension data - Subject activity of each hour in seven days.
+ 	\end{itemize}
+ 
+\end{enumerate}
+Features for RBM algorithm are represented in a shape of \textbf{(subject number, observation days * number of hours in a one day * all possible locations conditions)} which in real numbers are \textbf{(69, 7 * 24 * 5) = (69, 840)} , explanation:
+\begin{itemize}
+\item subject number - is all subjects which complies data\_mat requirements.
+\item observation days - number of how many days subject activity is stored.
+\item Number of hours in a one day - since one day has 24 hours, so the number is 24.
+\item All possible locations conditions - All possible locations conditions are 5 (Home, Elsewhere, Phone is off, No signal).
+\end{itemize}
+For each subject, all 7 days of each hour data is stored for different locations conditions.
+\newline
+At the start features vector for each subject is filled with zeros values. Data for each locations conditions is saved in 0,1 numbers representation - all possible locations are iterated and if at the certain hour of the week subject was in that location, the value of that hour of the day changes from 0 to 1.
+
+\subsection{Classification}
+\label{sec:classimple}
+Since \textbf{Restricted Bolzman Machine(RBM)} algorithm is unsupervised learning, it will categorize subjects by itself by their mat\_data data patterns.
+Data for \textbf{Multi-layer perceptron} supervised learning algorithm are classified into categories: \textbf{sloan} and \textbf{no sloan}.
+\newline
+For sloan category belongs all subjects who affilation type is equal: \textit{'sloan' or 'sloan\_2'}.
+For no sloan category belongs all subjects who affilation type is equal:  \textit{'mlgrad', '1 st yeargrad', 'mlfrosh', `mlstaff', `mlurop', `professor'}. 
+\newline
+In total 69 subjects are analyzed and classified in this order:
+\begin{itemize}
+\item Sloans: 20 subjects
+\item No sloans: 49 subjects
+\end{itemize}
+
+\subsection{Restricted Bolzman Machine and Multi-layer Perceptron}
+Restricted Bolzman Machine learning uses this representation: \textbf{BernoulliRBM(n\_components=100, verbose=True, learning\_rate=0.1, n\_iter=50)}, where:
+\begin{enumerate}
+\item n\_components - Weight matrix, where features in the number of visible units and components is the number of hidden units.
+\item learning\_rate - The learning rate for weight updates.
+\item n\_iter - Number of iterations over the training dataset to perform during training.
+\end{enumerate}
+After executing this BRM function, results are transformed and saved to list in order to use this data for Multi-layer Perceptron neural network as a features.
+\newline
+Training and validating Multi-layer Perceptron neural network:
+\begin{enumerate}
+\item Split labels and features data into testing and validation parts.  
+\item Define parameters for MLP: 
+	\begin{itemize}
+    	\item inputs - number of training features data.
+        \item n\_hiddens - number of hidden neurons.
+        \item outputs - number of classifiers. This number is equal 2, because there are two labels: sloan and no\_sloan.
+        \item n\_epochs - Number of epochs which is a measure of the number of times all of the training vectors are used once to update the 							weights.
+        \item batch\_size - defines number of samples that going to be propagated through the network.
+    \end{itemize}
+\item Define first and second layer using the \textbf{ReLu activation function}. Activation function is used to produce a non-linear decision boundary via non-linear combinations of the weighted inputs. \textbf{ReLu} function is represented: \textbf{(X) = max(x,0)} - if the input is greater than 0, the output is equal to the input.
+\item Define output layer.
+\item Define \textbf{loss function}. Loss function is a performance metric on how well the Neural Network manages to reach its goal of generating outputs as close as possible to the desired values.
+\item Implementing Gradient Descent Optimizer which updates the weights towards less and less global loss function.
+\item Learn weights using current batch.
+\item Compute accuracies in the training and validation sets using tensorflow.
+\end{enumerate}
+\section{Results and Conclusion}
+The results obtained from our project have shown too aleatory to create strong convictions in trying out the initial proposition in the abstract.
+The main problem is that the casual division in the to sets(Training and testig) could generate aleatority.\newline 
+Anyway we can observe some interesting facts. While in the first procedure we can osserve an accuracy of 0.6 (not so good as immaged) in the other method the accuracy is floating and can dipend from many influences.\newline
+On average the accuracy reach from the second method is in a range of $ \approx 0.7-0.8$ that is actually a good improvment respect the first method.
+The amazing thing that can be a source of future developments is that there seems to be a correlation between the quality of RBM learning (considering maximum pseudo-Likehood) and final learning through perceptron. In fact, if we try to put a few iterations and to maintain a low Likehood (that is, not training the net) the end result of the perfection decreases and is evaluated in a range of  $\approx 0.5-0.6$ that is just like to flip a coin.
+So it can be said that if the RBM network can be useful to identify a probalible pattern, but that one can't be considered evident by the presence (perhaps) of a few and noisy data.
+\theendnotes
+\end{document}
